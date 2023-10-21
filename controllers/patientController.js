@@ -6,7 +6,7 @@ const register = async (req, res) => {
   const existing = await Patient.findOne({ email });
   if (existing) {
     const error = new Error("Ya existe un paciente con el email ingresado");
-    return res.status(400).json({ msg: error.message });
+    return res.status(404).json({ msg: error.message });
   }
 
   // En caso de que el paciente sea único se hace el registro
@@ -46,4 +46,33 @@ const confirm = async (req, res) => {
   }
 };
 
-export { register, login, profile, confirm };
+const authenticate = async (req, res) => {
+  const { email, password } = req.body;
+
+  // Verificar existencia de paciente
+  const patient = await Patient.findOne({ email });
+  if (!patient) {
+    const error = new Error("No paciente no existe");
+    return res.status(404).json({ msg: error.message });
+  }
+
+  // Comprobar si el paciente está confirmado
+  if(!patient.confirm){
+    const error = new Error("La cuenta no está confirmada");
+    return res.status(404).json({ msg: error.message });
+  }
+
+  // Verificar contraseña ingresada
+  if(await patient.verifyPassword(password)){
+  
+    // Autenticar al usuario
+    return res.json({ msg: "Autenticando usuario" });
+  } else {
+    const error = new Error("La contraseña es incorrecta");
+    return res.status(404).json({ msg: error.message });
+  }
+
+  
+};
+
+export { register, login, profile, confirm, authenticate };

@@ -34,7 +34,7 @@ const patientSchema = mongoose.Schema({
 });
 
 // Hashear password
-// Mongoose tiene un middleware y con pre lo que se hace ese ejecutar primero cierta acción en este caso hashear el password antes de realizar el guardado, es necesario el uso de una función no asíncrona ya que se hace uso el objeto en si y no al ambiente en general
+// Mongoose tiene un middleware y con pre lo que se hace ese ejecutar primero cierta acción en este caso hashear el password antes de realizar el guardado, es necesario el uso de una función normal ya que se hace uso el objeto en si y no al ambiente en general
 patientSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     next();
@@ -43,6 +43,11 @@ patientSchema.pre("save", async function (next) {
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
+
+patientSchema.methods.verifyPassword = async function (passwordEntered) {
+  return await bcrypt.compare(passwordEntered, this.password);
+}
+
 
 const Patient = mongoose.model("Patients", patientSchema);
 export default Patient;
