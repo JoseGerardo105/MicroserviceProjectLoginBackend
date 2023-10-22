@@ -1,4 +1,5 @@
 import Patient from "../models/Patient.js";
+import generateJWT from "../helpers/generateJWT.js";
 
 const register = async (req, res) => {
   // Prevenir pacientes duplicados (correo único)
@@ -65,8 +66,8 @@ const authenticate = async (req, res) => {
   // Verificar contraseña ingresada
   if(await patient.verifyPassword(password)){
   
-    // Autenticar al usuario
-    return res.json({ msg: "Autenticando usuario" });
+    // Autenticar al paciente
+    return res.json({ token: generateJWT(patient.id)});
   } else {
     const error = new Error("La contraseña es incorrecta");
     return res.status(404).json({ msg: error.message });
