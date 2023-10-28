@@ -3,17 +3,22 @@ const router = express.Router();
 import {
   register,
   profile,
-  login,
   confirm,
   authenticate,
+  forgetPassword,
+  checkToken,
+  changePassword,
 } from "../controllers/patientController.js";
-import checkAuth from "../middleware/authMiddleware.js";
+import checkAuthPatient from "../middleware/authPatientMiddleware.js";
 
+// Rutas públicas
 router.post("/", register);
-router.get("/login", login);
 router.get("/confirm/:token", confirm); //Ruta dinámica
 router.post("/login", authenticate);
+router.post("/forget-password", forgetPassword);
+router.route("/forget-password/:token").get(checkToken).post(changePassword);
 
-router.get("/profile", checkAuth, profile);
+// Rutas privadas
+router.get("/profile", checkAuthPatient, profile);
 
 export default router;

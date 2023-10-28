@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import Patient from "../models/Patient.js";
 
-const checkAuth = async (req, res, next) => {
+const checkAuthPatient = async (req, res, next) => {
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
@@ -10,7 +10,13 @@ const checkAuth = async (req, res, next) => {
     try {
       const token = req.headers.authorization.split(" ")[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.patient = await Patient.findById(decoded.id).select("-password -token -confirm");
+      req.patient = await Patient.findById(decoded.id).select(
+        "-password -token -confirm"
+      );
+      if(!req.patient){
+        const e = new Error("Token inválido");
+        return res.status(403).json({ msg: e.message });
+      }
       return next();
     } catch (error) {
       const e = new Error("Token inválido");
@@ -24,4 +30,4 @@ const checkAuth = async (req, res, next) => {
   next();
 };
 
-export default checkAuth;
+export default checkAuthPatient;

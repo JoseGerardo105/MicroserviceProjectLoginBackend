@@ -1,5 +1,6 @@
 import Patient from "../models/Patient.js";
 import generateJWT from "../helpers/generateJWT.js";
+import generateId from "../helpers/generateId.js";
 
 const register = async (req, res) => {
   // Prevenir pacientes duplicados (correo único)
@@ -20,12 +21,8 @@ const register = async (req, res) => {
   }
 };
 
-const login = (req, res) => {
-  res.json({ url: "Desde api pacientes login" });
-};
-
 const profile = (req, res) => {
-  res.json({ msg: "Mostrando perfil paciente" });
+  res.json({ profile: req.patient });
 };
 
 const confirm = async (req, res) => {
@@ -58,22 +55,76 @@ const authenticate = async (req, res) => {
   }
 
   // Comprobar si el paciente está confirmado
-  if(!patient.confirm){
+  if (!patient.confirm) {
     const error = new Error("La cuenta no está confirmada");
     return res.status(404).json({ msg: error.message });
   }
 
   // Verificar contraseña ingresada
-  if(await patient.verifyPassword(password)){
-  
+  if (await patient.verifyPassword(password)) {
     // Autenticar al paciente
-    return res.json({ token: generateJWT(patient.id)});
+    return res.json({ token: generateJWT(patient.id) });
   } else {
     const error = new Error("La contraseña es incorrecta");
     return res.status(404).json({ msg: error.message });
   }
-
-  
 };
 
-export { register, login, profile, confirm, authenticate };
+const forgetPassword = async (req, res) => {
+  const { email } = req.body;
+  const patient = await Patient.findOne({ email });
+
+  if (!patient) {
+    const error = new Error("No existen registros con el email ingresado");
+    res.status(400).json({ msg: error.message });
+  }
+
+  try {
+    patient.token = generateId();
+    await patient.save();
+
+    res.json({ msg: "Se ha enviado un email con las instrucciones" });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const checkToken = async (req, res) => {
+  const { token } = req.params;
+  const patient = await Patient.findOne({ token });
+
+  if (!patient) {
+    const error = new Error("Error, token para cambio de contraseña inválido");
+    return res.status(400).json({ msg: error.message });
+  } else {
+    return res.json({ msg: "Token válido, se puede cambiar la contraseña" });
+  }
+};
+
+const changePassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  const patient = await Patient.findOne({ token });
+
+  if (!patient) {
+    // Si no existe pacientes correspondientes al token de la URL
+    const error = new Error("Error, url para el cambio de password incorrecta");
+    return res.status(403).json({ msg: error.message });
+  }
+
+  patient.token = null;
+  patient.password = password;
+  await patient.save();
+  res.json({msg: "Password modificado correctamente"});
+};
+
+export {
+  register,
+  profile,
+  confirm,
+  authenticate,
+  forgetPassword,
+  checkToken,
+  changePassword,
+};
