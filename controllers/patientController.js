@@ -1,10 +1,12 @@
 import Patient from "../models/Patient.js";
 import generateJWT from "../helpers/generateJWT.js";
 import generateId from "../helpers/generateId.js";
+import emailRegister from "../helpers/emailRegister.js";
+import emailForgetPassword from "../helpers/emailForgetPassword.js";
 
 const register = async (req, res) => {
   // Prevenir pacientes duplicados (correo único)
-  const { email } = req.body;
+  const { email, name } = req.body;
   const existing = await Patient.findOne({ email });
   if (existing) {
     const error = new Error("Ya existe un paciente con el email ingresado");
@@ -15,6 +17,15 @@ const register = async (req, res) => {
   try {
     const patient = new Patient(req.body);
     const newPatient = await patient.save();
+
+    //Enviar el e-mail
+  
+    emailRegister({
+      email,
+      name,
+      token: newPatient.token
+    })
+
     res.json({ "Paciente registrado": newPatient });
   } catch (error) {
     console.log(error);
@@ -82,6 +93,14 @@ const forgetPassword = async (req, res) => {
   try {
     patient.token = generateId();
     await patient.save();
+
+    //enviar email
+
+    emailForgetPassword({
+      email,
+      name: patient.name,
+      token: patient.token
+    })
 
     res.json({ msg: "Se ha enviado un email con las instrucciones" });
   } catch (error) {
