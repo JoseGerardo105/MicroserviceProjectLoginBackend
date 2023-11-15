@@ -61,7 +61,7 @@ const authenticate = async (req, res) => {
   // Verificar existencia de paciente
   const patient = await Patient.findOne({ email });
   if (!patient) {
-    const error = new Error("No paciente no existe");
+    const error = new Error("El paciente no existe");
     return res.status(404).json({ msg: error.message });
   }
 

@@ -31,7 +31,7 @@ const authenticate = async (req, res) => {
   // Verificar existencia de psicólogo
   const psychologist = await Psychologist.findOne({ email });
   if (!psychologist) {
-    const error = new Error("No psicólogo no existe");
+    const error = new Error("El psicólogo no existe");
     return res.status(404).json({ msg: error.message });
   }
 

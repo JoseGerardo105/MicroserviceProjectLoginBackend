@@ -15,7 +15,7 @@ import checkAuthPatient from "../middleware/authPatientMiddleware.js";
 router.post("/", register);
 router.get("/confirm/:token", confirm); //Ruta dinámica
 router.post("/login", authenticate);
-router.post("/forget-password", forgetPassword);
+router.patch("/forget-password", forgetPassword);
 router.route("/forget-password/:token").get(checkToken).post(changePassword);
 
 // Rutas privadas
