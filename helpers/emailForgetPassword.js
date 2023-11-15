@@ -21,7 +21,7 @@ const emailForgetPassword = async (data) =>{
         text: "Recupera tu cuenta en Psynergia",
         html: `
         <p>Hola ${name}, por favor da click en el enlace a continuacion, para recuperar tu contraseña.
-        <a href="http://localhost:4000/api/patients/forget-password/${token}">Reestablecer contraseña </a></p>
+        <a href="${process.env.LINK}/api/patients/forget-password/${token}">Reestablecer contraseña </a></p>
         <p>Si tu no creaste esta cuenta, por favor ignora este mensaje.</p>
         `
     });

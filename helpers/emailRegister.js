@@ -20,7 +20,7 @@ const emailRegister = async (data) =>{
         text: "Confirma tu cuenta en Psynergia",
         html: `
         <p>Hola ${name}, por favor confirma tu cuenta acontinuacion, en el siguiente enlace.
-        <a href="http://localhost:4000/api/patients/confirm/${token}">Comprobar cuenta </a></p>
+        <a href="${process.env.LINK}/api/patients/confirm/${token}">Comprobar cuenta </a></p>
         <p>Si tu no creaste esta cuenta, por favor ignora este mensaje.</p>
         `
     });
